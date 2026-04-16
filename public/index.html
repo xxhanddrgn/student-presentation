@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우리 반 발표 현황</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --border: #e3e7ef;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    header h1 { margin: 0; font-size: 1.6rem; }
+    header p { margin: 6px 0 0; opacity: 0.9; font-size: 0.9rem; }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      margin-bottom: 16px;
+    }
+    .week-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .week-nav button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .week-nav button:hover { background: var(--primary-hover); }
+    .week-label {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .week-label small {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .student-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .student-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #fafbfe;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .student-row.has-presented {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .student-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .counter-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .counter-btn.plus {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .counter-btn.minus {
+      background: white;
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+    .counter-btn:active { transform: scale(0.95); }
+    .count {
+      min-width: 36px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .summary-table th, .summary-table td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: center;
+    }
+    .summary-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    .summary-table td.name {
+      text-align: left;
+      font-weight: 600;
+    }
+    .summary-table td.total {
+      background: #eef2ff;
+      font-weight: 700;
+    }
+    .scroll-x { overflow-x: auto; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--success);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px;
+    }
+    @media (max-width: 520px) {
+      header h1 { font-size: 1.3rem; }
+      .week-label { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📋 우리 반 발표 현황</h1>
+    <p>주별로 학생 발표 횟수를 기록합니다</p>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="tab active" data-tab="week">주별 체크</button>
+      <button class="tab" data-tab="summary">전체 요약</button>
+    </div>
+
+    <section id="tab-week">
+      <div class="card">
+        <div class="week-nav">
+          <button id="prevWeek">◀ 이전 주</button>
+          <div class="week-label">
+            <span id="weekLabel">-</span>
+            <small id="weekRange"></small>
+          </div>
+          <button id="nextWeek">다음 주 ▶</button>
+        </div>
+        <div style="margin-top: 10px; text-align: center;">
+          <button id="thisWeek" style="background: #6b7280; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+            이번 주로 이동
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="student-list" id="studentList"></div>
+      </div>
+    </section>
+
+    <section id="tab-summary" style="display: none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <h2 style="margin: 0; font-size: 1.1rem;"><span id="summaryYear"></span>년 요약</h2>
+          <div>
+            <button id="summaryPrevYear" style="background: #6b7280; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;">◀</button>
+            <button id="summaryNextYear" style="background: #6b7280; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;">▶</button>
+          </div>
+        </div>
+        <div class="scroll-x">
+          <table class="summary-table" id="summaryTable"></table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">저장됨</div>
+
+  <script>
+    let STUDENTS = [];
+    let currentYear, currentWeek;
+    let summaryYear;
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 1200);
+    }
+
+    // ISO week number
+    function getIsoWeek(date) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      const weekNum = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+      return { year: d.getUTCFullYear(), week: weekNum };
+    }
+
+    function dateFromIsoWeek(year, week) {
+      const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
+      const dayOfWeek = simple.getUTCDay();
+      const monday = new Date(simple);
+      if (dayOfWeek <= 4) monday.setUTCDate(simple.getUTCDate() - simple.getUTCDay() + 1);
+      else monday.setUTCDate(simple.getUTCDate() + 8 - simple.getUTCDay());
+      return monday;
+    }
+
+    function formatWeekRange(year, week) {
+      const mon = dateFromIsoWeek(year, week);
+      const sun = new Date(mon);
+      sun.setUTCDate(mon.getUTCDate() + 6);
+      const fmt = d => `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+      return `${fmt(mon)} ~ ${fmt(sun)}`;
+    }
+
+    function stepWeek(delta) {
+      const monday = dateFromIsoWeek(currentYear, currentWeek);
+      monday.setUTCDate(monday.getUTCDate() + delta * 7);
+      const { year, week } = getIsoWeek(monday);
+      currentYear = year;
+      currentWeek = week;
+      loadWeek();
+    }
+
+    async function loadStudents() {
+      const res = await fetch('/api/students');
+      const data = await res.json();
+      STUDENTS = data.students;
+    }
+
+    async function loadWeek() {
+      document.getElementById('weekLabel').textContent = `${currentYear}년 ${currentWeek}주차`;
+      document.getElementById('weekRange').textContent = formatWeekRange(currentYear, currentWeek);
+      const res = await fetch(`/api/week?year=${currentYear}&week=${currentWeek}`);
+      const data = await res.json();
+      renderStudents(data.counts);
+    }
+
+    function renderStudents(counts) {
+      const list = document.getElementById('studentList');
+      list.innerHTML = '';
+      for (const name of STUDENTS) {
+        const c = counts[name] || 0;
+        const row = document.createElement('div');
+        row.className = 'student-row' + (c > 0 ? ' has-presented' : '');
+        row.innerHTML = `
+          <div class="student-name">${name}${c > 0 ? ' ✓' : ''}</div>
+          <div class="controls">
+            <button class="counter-btn minus" data-act="dec">−</button>
+            <span class="count">${c}</span>
+            <button class="counter-btn plus" data-act="inc">+</button>
+          </div>
+        `;
+        row.querySelector('[data-act="inc"]').addEventListener('click', () => change(name, +1, row));
+        row.querySelector('[data-act="dec"]').addEventListener('click', () => change(name, -1, row));
+        list.appendChild(row);
+      }
+    }
+
+    async function change(student, delta, row) {
+      const res = await fetch('/api/week/increment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ year: currentYear, week: currentWeek, student, delta })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        row.querySelector('.count').textContent = data.count;
+        const nameEl = row.querySelector('.student-name');
+        nameEl.textContent = student + (data.count > 0 ? ' ✓' : '');
+        row.classList.toggle('has-presented', data.count > 0);
+        showToast(delta > 0 ? '+1 발표' : '-1');
+      }
+    }
+
+    async function loadSummary() {
+      document.getElementById('summaryYear').textContent = summaryYear;
+      const res = await fetch(`/api/summary?year=${summaryYear}`);
+      const data = await res.json();
+      renderSummary(data);
+    }
+
+    function renderSummary(data) {
+      const table = document.getElementById('summaryTable');
+      if (!data.weeks.length) {
+        table.innerHTML = '<tr><td class="empty">아직 기록된 발표가 없습니다.</td></tr>';
+        return;
+      }
+      let html = '<thead><tr><th>학생</th>';
+      for (const w of data.weeks) {
+        html += `<th>${w}주<br><small>${formatWeekRange(data.year, w)}</small></th>`;
+      }
+      html += '<th>합계</th></tr></thead><tbody>';
+      for (const name of STUDENTS) {
+        html += `<tr><td class="name">${name}</td>`;
+        for (const w of data.weeks) {
+          const v = data.perWeek[w][name] || 0;
+          html += `<td>${v || '·'}</td>`;
+        }
+        html += `<td class="total">${data.totals[name] || 0}</td></tr>`;
+      }
+      html += '</tbody>';
+      table.innerHTML = html;
+    }
+
+    function switchTab(which) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === which));
+      document.getElementById('tab-week').style.display = which === 'week' ? '' : 'none';
+      document.getElementById('tab-summary').style.display = which === 'summary' ? '' : 'none';
+      if (which === 'summary') loadSummary();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const now = new Date();
+      const iso = getIsoWeek(now);
+      currentYear = iso.year;
+      currentWeek = iso.week;
+      summaryYear = iso.year;
+
+      await loadStudents();
+      await loadWeek();
+
+      document.getElementById('prevWeek').addEventListener('click', () => stepWeek(-1));
+      document.getElementById('nextWeek').addEventListener('click', () => stepWeek(1));
+      document.getElementById('thisWeek').addEventListener('click', () => {
+        const iso = getIsoWeek(new Date());
+        currentYear = iso.year;
+        currentWeek = iso.week;
+        loadWeek();
+      });
+      document.querySelectorAll('.tab').forEach(t => {
+        t.addEventListener('click', () => switchTab(t.dataset.tab));
+      });
+      document.getElementById('summaryPrevYear').addEventListener('click', () => {
+        summaryYear--;
+        loadSummary();
+      });
+      document.getElementById('summaryNextYear').addEventListener('click', () => {
+        summaryYear++;
+        loadSummary();
+      });
+    });
+  </script>
+</body>
+</html>
