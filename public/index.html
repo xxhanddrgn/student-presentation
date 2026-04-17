@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>우리 반 발표 현황</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Gamja+Flower&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-1: #fef3ff;
@@ -20,34 +23,38 @@
     html, body { height: 100%; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+      font-family: 'Jua', 'Gaegu', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
       background:
-        radial-gradient(circle at 10% 10%, #ffe4f2 0%, transparent 40%),
-        radial-gradient(circle at 90% 10%, #e0f2fe 0%, transparent 40%),
-        radial-gradient(circle at 50% 100%, #fef9c3 0%, transparent 40%),
-        #f8fafc;
+        radial-gradient(ellipse at 8% 6%, #fbcfe8 0%, transparent 55%),
+        radial-gradient(ellipse at 92% 8%, #bae6fd 0%, transparent 55%),
+        radial-gradient(ellipse at 15% 95%, #fef08a 0%, transparent 55%),
+        radial-gradient(ellipse at 88% 92%, #bbf7d0 0%, transparent 55%),
+        linear-gradient(135deg, #fff5fb 0%, #f0f9ff 50%, #fefce8 100%);
+      background-attachment: fixed;
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
+      letter-spacing: 0.01em;
     }
+    .hand { font-family: 'Gaegu', cursive; }
     header {
       text-align: center;
       padding: 14px 16px 10px;
     }
     header h1 {
       margin: 0;
-      font-size: 1.8rem;
-      font-weight: 800;
+      font-size: 2.2rem;
       background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      letter-spacing: -0.02em;
+      letter-spacing: 0;
     }
     header p {
       margin: 4px 0 0;
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 1rem;
+      font-family: 'Gaegu', cursive;
     }
     main {
       max-width: 1400px;
@@ -64,37 +71,51 @@
     }
     .tabs {
       display: inline-flex;
-      background: white;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(8px);
       border-radius: 999px;
-      padding: 4px;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
-      border: 1px solid var(--border);
+      padding: 5px;
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.12);
+      border: 1px solid rgba(255,255,255,0.9);
     }
     .tab {
-      padding: 8px 18px;
+      padding: 9px 20px;
       border: none;
       background: transparent;
       border-radius: 999px;
       cursor: pointer;
-      font-weight: 700;
       color: var(--muted);
-      font-size: 0.9rem;
-      transition: all 0.15s;
+      font-size: 1.02rem;
+      font-family: inherit;
+      transition: all 0.2s;
+      position: relative;
     }
     .tab.active {
       background: linear-gradient(135deg, #8b5cf6, #6366f1);
       color: white;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+    .tab[data-tab="champions"].active {
+      background: linear-gradient(135deg, #f59e0b, #ec4899);
+      box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
+    }
+    .tab[data-tab="champions"]:not(.active) {
+      animation: shimmer 2.5s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
     }
     .week-nav {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: white;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(8px);
       padding: 6px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
     }
     .week-nav button {
       background: #f1f5f9;
@@ -147,11 +168,12 @@
     }
     .student-card {
       position: relative;
-      background: white;
-      border-radius: 18px;
-      padding: 12px;
-      border: 2px solid transparent;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+      border-radius: 22px;
+      padding: 14px;
+      border: 2px solid rgba(255,255,255,0.9);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.08);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -164,7 +186,7 @@
       position: absolute;
       inset: 0;
       background: var(--tint, linear-gradient(135deg, #fef3ff, #e0f2fe));
-      opacity: 0.35;
+      opacity: 0.55;
       z-index: 0;
     }
     .student-card > * { position: relative; z-index: 1; }
@@ -188,16 +210,16 @@
       box-shadow: 0 4px 10px color-mix(in srgb, var(--accent, #6366f1) 35%, transparent);
     }
     .name {
-      font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 1.1rem;
       text-align: center;
     }
     .stars {
       min-height: 22px;
       text-align: center;
-      font-size: 1rem;
+      font-size: 1.05rem;
       letter-spacing: 1px;
       line-height: 1;
+      font-family: 'Gaegu', cursive;
     }
     .count-row {
       display: flex;
@@ -263,23 +285,98 @@
       100% { opacity: 0; transform: translate(var(--dx, 0), 120px) rotate(360deg); }
     }
 
+    /* 발표왕 탭 클릭 시 화려한 효과 */
+    .sparkle-rain {
+      position: fixed;
+      top: -60px;
+      pointer-events: none;
+      z-index: 1000;
+      animation: sparkleRain 2.4s cubic-bezier(.3,.2,.5,1) forwards;
+    }
+    @keyframes sparkleRain {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    .champion-burst {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 998;
+      background: radial-gradient(circle at 50% 40%, rgba(250, 204, 21, 0.5), rgba(236, 72, 153, 0.2) 30%, transparent 60%);
+      animation: burst 900ms ease-out forwards;
+    }
+    @keyframes burst {
+      0%   { opacity: 0; transform: scale(0.6); }
+      30%  { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.4); }
+    }
+
+    .champion-banner {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.3);
+      font-family: 'Jua', sans-serif;
+      font-size: 5rem;
+      background: linear-gradient(135deg, #f59e0b, #ec4899, #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      z-index: 1001;
+      pointer-events: none;
+      text-shadow: 0 4px 20px rgba(236, 72, 153, 0.3);
+      animation: banner 1.6s cubic-bezier(.2,.8,.4,1) forwards;
+      white-space: nowrap;
+    }
+    @keyframes banner {
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); }
+      25%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(2deg); }
+      45%  { transform: translate(-50%, -50%) scale(1) rotate(-1deg); }
+      75%  { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3) rotate(0deg); }
+    }
+
+    #tab-champions.intro .summary-card {
+      animation: cardPop 0.7s cubic-bezier(.2,.8,.4,1);
+    }
+    @keyframes cardPop {
+      0%   { opacity: 0; transform: translateY(20px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    #tab-champions.intro .podium-slot {
+      animation: slotRise 0.8s cubic-bezier(.2,.8,.4,1) backwards;
+    }
+    #tab-champions.intro .podium-slot.rank-2 { animation-delay: 0.15s; }
+    #tab-champions.intro .podium-slot.rank-1 { animation-delay: 0.3s; }
+    #tab-champions.intro .podium-slot.rank-3 { animation-delay: 0.45s; }
+    @keyframes slotRise {
+      0%   { opacity: 0; transform: translateY(40px) scale(0.9); }
+      60%  { opacity: 1; transform: translateY(-6px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
     .summary-card {
-      background: white;
-      border-radius: 18px;
-      padding: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+      border-radius: 22px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.08);
     }
     .summary-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .summary-head h2 {
       margin: 0;
-      font-size: 1.1rem;
-      font-weight: 800;
+      font-size: 1.4rem;
     }
     .year-nav button {
       background: #f1f5f9;
@@ -329,7 +426,7 @@
 
     .champ-toggle {
       display: inline-flex;
-      background: #f1f5f9;
+      background: #fef3c7;
       border-radius: 999px;
       padding: 4px;
       gap: 2px;
@@ -337,25 +434,26 @@
     .chip {
       border: none;
       background: transparent;
-      padding: 6px 14px;
+      padding: 7px 16px;
       border-radius: 999px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--muted);
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: #a16207;
       cursor: pointer;
       transition: all 0.15s;
     }
     .chip.active {
-      background: white;
-      color: var(--primary);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      background: linear-gradient(135deg, #f59e0b, #ec4899);
+      color: white;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35);
     }
 
     .champ-range {
       text-align: center;
       color: var(--muted);
-      font-size: 0.85rem;
-      margin-bottom: 14px;
+      font-size: 1rem;
+      font-family: 'Gaegu', cursive;
+      margin-bottom: 18px;
     }
     .podium {
       display: grid;
@@ -373,16 +471,16 @@
       position: relative;
       overflow: hidden;
     }
-    .podium-slot .medal { font-size: 2rem; line-height: 1; }
+    .podium-slot .medal { font-size: 2.4rem; line-height: 1; }
     .podium-slot .p-name {
-      font-weight: 800;
-      font-size: 1.05rem;
-      margin-top: 6px;
+      font-size: 1.25rem;
+      margin-top: 8px;
     }
     .podium-slot .p-count {
       margin-top: 6px;
-      font-size: 0.9rem;
-      opacity: 0.95;
+      font-size: 1rem;
+      opacity: 0.98;
+      font-family: 'Gaegu', cursive;
     }
     .podium-slot.rank-1 {
       background: linear-gradient(135deg, #f59e0b, #fbbf24);
@@ -410,42 +508,45 @@
     }
 
     .ranklist {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
     }
     .rank-row {
       display: grid;
-      grid-template-columns: 48px 1fr auto;
+      grid-template-columns: 44px 1fr auto;
       align-items: center;
       gap: 12px;
-      padding: 10px 14px;
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.95);
+      border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(139, 92, 246, 0.07);
+      transition: transform 0.15s;
     }
-    .rank-row.top {
-      background: linear-gradient(90deg, #fef3c7, #fffbeb);
-      border-color: #fde68a;
-    }
+    .rank-row:hover { transform: translateY(-2px); }
     .rank-badge {
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: #f1f5f9;
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      color: var(--muted);
+      color: var(--primary-hover);
+      font-size: 1rem;
     }
-    .rank-row .p-name { font-weight: 700; }
-    .rank-row .p-stars { font-size: 0.85rem; color: var(--muted); }
+    .rank-row .p-name { font-size: 1.05rem; }
+    .rank-row .p-stars {
+      font-size: 0.95rem;
+      color: #d97706;
+      font-family: 'Gaegu', cursive;
+    }
     .rank-count {
-      font-weight: 800;
       color: var(--primary);
-      font-size: 1.1rem;
+      font-size: 1.25rem;
     }
+    .rank-count small { font-size: 0.8rem; opacity: 0.7; }
 
     .toast {
       position: fixed;
@@ -586,6 +687,32 @@
       }
     }
 
+    function championExplosion() {
+      const emojis = ['🏆', '⭐', '✨', '🎉', '🎊', '🌟', '💫', '👑', '🥇'];
+      const burst = document.createElement('div');
+      burst.className = 'champion-burst';
+      document.body.appendChild(burst);
+      setTimeout(() => burst.remove(), 900);
+
+      const banner = document.createElement('div');
+      banner.className = 'champion-banner';
+      banner.textContent = '🏆 발표왕 🏆';
+      document.body.appendChild(banner);
+      setTimeout(() => banner.remove(), 1650);
+
+      for (let i = 0; i < 55; i++) {
+        const el = document.createElement('div');
+        el.className = 'sparkle-rain';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.fontSize = (1 + Math.random() * 1.8) + 'rem';
+        el.style.animationDelay = (Math.random() * 0.7) + 's';
+        el.style.animationDuration = (1.8 + Math.random() * 1.5) + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+      }
+    }
+
     function getIsoWeek(date) {
       const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
       const dayNum = d.getUTCDay() || 7;
@@ -723,12 +850,22 @@
     }
 
     function switchTab(which) {
+      const prev = document.querySelector('.tab.active')?.dataset.tab;
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === which));
       document.getElementById('tab-week').style.display = which === 'week' ? '' : 'none';
       document.getElementById('tab-summary').style.display = which === 'summary' ? '' : 'none';
-      document.getElementById('tab-champions').style.display = which === 'champions' ? '' : 'none';
+      const champEl = document.getElementById('tab-champions');
+      champEl.style.display = which === 'champions' ? '' : 'none';
       if (which === 'summary') loadSummary();
-      if (which === 'champions') loadChampions(currentChampRange);
+      if (which === 'champions') {
+        loadChampions(currentChampRange);
+        if (prev !== 'champions') {
+          championExplosion();
+          champEl.classList.remove('intro');
+          void champEl.offsetWidth;
+          champEl.classList.add('intro');
+        }
+      }
     }
 
     let currentChampRange = 'week';
@@ -804,16 +941,24 @@
       `;
 
       const rest = sorted.filter(e => e.rank && e.rank > 3);
-      rankList.innerHTML = rest.map(e => `
-        <div class="rank-row">
-          <div class="rank-badge">${e.rank}</div>
-          <div>
-            <div class="p-name">${e.name}</div>
-            <div class="p-stars">${starsFor(e.count)}</div>
+      if (rest.length) {
+        rankList.innerHTML = `
+          <div style="grid-column:1/-1;font-family:'Gaegu',cursive;color:#64748b;margin-top:4px;">
+            🎤 나머지 발표 친구들
           </div>
-          <div class="rank-count">${e.count}회</div>
-        </div>
-      `).join('');
+        ` + rest.map(e => `
+          <div class="rank-row">
+            <div class="rank-badge">${e.rank}</div>
+            <div>
+              <div class="p-name">${e.name}</div>
+              <div class="p-stars">${starsFor(e.count)}</div>
+            </div>
+            <div class="rank-count">${e.count}<small>회</small></div>
+          </div>
+        `).join('');
+      } else {
+        rankList.innerHTML = '';
+      }
     }
 
     function podiumSlot(group, rank) {
