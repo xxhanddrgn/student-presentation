@@ -477,11 +477,25 @@
       margin-top: 8px;
     }
     .podium-slot .p-count {
-      margin-top: 6px;
-      font-size: 1rem;
-      opacity: 0.98;
-      font-family: 'Gaegu', cursive;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.95);
+      color: #111827;
+      border-radius: 999px;
+      font-size: 1.4rem;
+      line-height: 1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+    .podium-slot .p-count .n {
+      font-size: 1.7rem;
+      color: #d97706;
+    }
+    .podium-slot.rank-1 .p-count .n { color: #d97706; }
+    .podium-slot.rank-2 .p-count .n { color: #475569; }
+    .podium-slot.rank-3 .p-count .n { color: #9a3412; }
     .podium-slot.rank-1 {
       background: linear-gradient(135deg, #f59e0b, #fbbf24);
       min-height: 160px;
@@ -543,10 +557,21 @@
       font-family: 'Gaegu', cursive;
     }
     .rank-count {
-      color: var(--primary);
-      font-size: 1.25rem;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+      padding: 8px 14px;
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #b45309;
+      border-radius: 999px;
+      font-size: 1.5rem;
+      line-height: 1;
+      box-shadow: 0 3px 8px rgba(217, 119, 6, 0.2);
     }
-    .rank-count small { font-size: 0.8rem; opacity: 0.7; }
+    .rank-count small {
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
 
     .toast {
       position: fixed;
@@ -973,7 +998,7 @@
       return `<div class="podium-slot rank-${rank}">
         <div class="medal">${medalFor(rank)}</div>
         <div class="p-name">${names}</div>
-        <div class="p-count">⭐ ${count}회</div>
+        <div class="p-count">⭐<span class="n">${count}</span>회</div>
       </div>`;
     }
 
