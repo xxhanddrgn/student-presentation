@@ -327,6 +327,126 @@
       font-size: 0.9rem;
     }
 
+    .champ-toggle {
+      display: inline-flex;
+      background: #f1f5f9;
+      border-radius: 999px;
+      padding: 4px;
+      gap: 2px;
+    }
+    .chip {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .champ-range {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+    }
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+    .podium-slot {
+      border-radius: 18px;
+      padding: 16px 10px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .podium-slot .medal { font-size: 2rem; line-height: 1; }
+    .podium-slot .p-name {
+      font-weight: 800;
+      font-size: 1.05rem;
+      margin-top: 6px;
+    }
+    .podium-slot .p-count {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      opacity: 0.95;
+    }
+    .podium-slot.rank-1 {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      min-height: 160px;
+    }
+    .podium-slot.rank-2 {
+      background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+      min-height: 135px;
+    }
+    .podium-slot.rank-3 {
+      background: linear-gradient(135deg, #b45309, #d97706);
+      min-height: 115px;
+    }
+    .podium-slot.empty-slot {
+      background: #f1f5f9;
+      color: #94a3b8;
+    }
+    .podium-slot.rank-1::after {
+      content: "";
+      position: absolute;
+      inset: -20% -20% auto auto;
+      width: 80%;
+      aspect-ratio: 1;
+      background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 60%);
+    }
+
+    .ranklist {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rank-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .rank-row.top {
+      background: linear-gradient(90deg, #fef3c7, #fffbeb);
+      border-color: #fde68a;
+    }
+    .rank-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    .rank-row .p-name { font-weight: 700; }
+    .rank-row .p-stars { font-size: 0.85rem; color: var(--muted); }
+    .rank-count {
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
     .toast {
       position: fixed;
       bottom: 24px;
@@ -370,6 +490,7 @@
     <div class="toolbar">
       <div class="tabs">
         <button class="tab active" data-tab="week">주별 체크</button>
+        <button class="tab" data-tab="champions">🏆 발표왕</button>
         <button class="tab" data-tab="summary">전체 요약</button>
       </div>
       <div class="week-nav">
@@ -385,6 +506,21 @@
 
     <section id="tab-week">
       <div class="student-grid" id="studentGrid"></div>
+    </section>
+
+    <section id="tab-champions" style="display: none;">
+      <div class="summary-card">
+        <div class="summary-head">
+          <h2>🏆 우리 반 발표왕</h2>
+          <div class="champ-toggle">
+            <button class="chip active" data-range="week">이번 주</button>
+            <button class="chip" data-range="month">이번 달</button>
+          </div>
+        </div>
+        <div class="champ-range" id="champRange"></div>
+        <div class="podium" id="podium"></div>
+        <div class="ranklist" id="rankList"></div>
+      </div>
     </section>
 
     <section id="tab-summary" style="display: none;">
@@ -590,7 +726,114 @@
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === which));
       document.getElementById('tab-week').style.display = which === 'week' ? '' : 'none';
       document.getElementById('tab-summary').style.display = which === 'summary' ? '' : 'none';
+      document.getElementById('tab-champions').style.display = which === 'champions' ? '' : 'none';
       if (which === 'summary') loadSummary();
+      if (which === 'champions') loadChampions(currentChampRange);
+    }
+
+    let currentChampRange = 'week';
+
+    async function loadChampions(range) {
+      currentChampRange = range;
+      document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.range === range));
+
+      const now = new Date();
+      let counts = {};
+      let label = '';
+
+      if (range === 'week') {
+        const { year, week } = getIsoWeek(now);
+        const res = await fetch(`/api/week?year=${year}&week=${week}`);
+        const data = await res.json();
+        counts = data.counts;
+        label = `${year}년 ${week}주차 (${formatWeekRange(year, week)})`;
+      } else {
+        const y = now.getFullYear();
+        const m = now.getMonth();
+        const res = await fetch(`/api/summary?year=${y}`);
+        const data = await res.json();
+        counts = Object.fromEntries(STUDENTS.map(s => [s, 0]));
+        for (const w of data.weeks) {
+          const monday = dateFromIsoWeek(data.year, w);
+          if (monday.getUTCFullYear() === y && monday.getUTCMonth() === m) {
+            for (const name of STUDENTS) {
+              counts[name] += data.perWeek[w][name] || 0;
+            }
+          }
+        }
+        label = `${y}년 ${m + 1}월`;
+      }
+
+      document.getElementById('champRange').textContent = label;
+      renderChampions(counts);
+    }
+
+    function renderChampions(counts) {
+      const entries = STUDENTS.map(name => ({ name, count: counts[name] || 0 }));
+      const sorted = [...entries].sort((a, b) => b.count - a.count);
+      const anyHas = sorted.some(e => e.count > 0);
+
+      const podium = document.getElementById('podium');
+      const rankList = document.getElementById('rankList');
+
+      if (!anyHas) {
+        podium.innerHTML = '';
+        rankList.innerHTML = '<div class="empty">이 기간에 아직 발표 기록이 없어요.<br>주별 체크 탭에서 +를 눌러주세요!</div>';
+        return;
+      }
+
+      // dense ranking (tied students share a rank)
+      let lastCount = null;
+      let lastRank = 0;
+      sorted.forEach((e, i) => {
+        if (e.count !== lastCount) {
+          lastRank = i + 1;
+          lastCount = e.count;
+        }
+        e.rank = e.count > 0 ? lastRank : null;
+      });
+
+      const first = sorted.filter(e => e.rank === 1);
+      const second = sorted.filter(e => e.rank === 2);
+      const third = sorted.filter(e => e.rank === 3);
+
+      podium.innerHTML = `
+        ${podiumSlot(second, 2)}
+        ${podiumSlot(first, 1)}
+        ${podiumSlot(third, 3)}
+      `;
+
+      const rest = sorted.filter(e => e.rank && e.rank > 3);
+      rankList.innerHTML = rest.map(e => `
+        <div class="rank-row">
+          <div class="rank-badge">${e.rank}</div>
+          <div>
+            <div class="p-name">${e.name}</div>
+            <div class="p-stars">${starsFor(e.count)}</div>
+          </div>
+          <div class="rank-count">${e.count}회</div>
+        </div>
+      `).join('');
+    }
+
+    function podiumSlot(group, rank) {
+      if (!group.length) {
+        return `<div class="podium-slot empty-slot rank-${rank}">
+          <div class="medal">${medalFor(rank)}</div>
+          <div class="p-name">-</div>
+        </div>`;
+      }
+      const names = group.map(g => g.name).join(', ');
+      const count = group[0].count;
+      return `<div class="podium-slot rank-${rank}">
+        <div class="medal">${medalFor(rank)}</div>
+        <div class="p-name">${names}</div>
+        <div class="p-count">⭐ ${count}회</div>
+      </div>`;
+    }
+
+    function medalFor(rank) {
+      return { 1: '🥇', 2: '🥈', 3: '🥉' }[rank] || '🏅';
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -621,6 +864,9 @@
       document.getElementById('summaryNextYear').addEventListener('click', () => {
         summaryYear++;
         loadSummary();
+      });
+      document.querySelectorAll('.chip').forEach(c => {
+        c.addEventListener('click', () => loadChampions(c.dataset.range));
       });
     });
   </script>
