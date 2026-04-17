@@ -790,8 +790,8 @@
         const res = await fetch('/api/class');
         const data = await res.json();
         if (data.classId) {
-          document.getElementById('appTitle').textContent = `🌟 ${data.classId}반 발표 현황 🌟`;
-          document.title = `${data.classId}반 발표 현황`;
+          document.getElementById('appTitle').textContent = `🌟 ${data.classId} 발표 현황 🌟`;
+          document.title = `${data.classId} 발표 현황`;
         }
       } catch (_) {}
     }
