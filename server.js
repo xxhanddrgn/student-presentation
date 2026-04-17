@@ -4,10 +4,17 @@ const path = require('path');
 const fs = require('fs');
 
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const DATA_DIR =
+  process.env.DATA_DIR ||
+  process.env.RAILWAY_VOLUME_MOUNT_PATH ||
+  path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const DB_PATH = path.join(DATA_DIR, 'presentations.db');
+const IS_EPHEMERAL =
+  !process.env.DATA_DIR &&
+  !process.env.RAILWAY_VOLUME_MOUNT_PATH &&
+  DATA_DIR.startsWith(__dirname);
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 
@@ -141,7 +148,29 @@ app.get('/api/summary', (req, res) => {
   res.json({ year, weeks, perWeek, totals });
 });
 
+app.get('/api/health', (_req, res) => {
+  let rowCount = 0;
+  try {
+    rowCount = db.prepare('SELECT COUNT(*) AS n FROM presentations').get().n;
+  } catch (_) {}
+  res.json({
+    classId: CLASS_ID,
+    dbPath: DB_PATH,
+    ephemeral: IS_EPHEMERAL,
+    rowCount
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Student presentation tracker listening on :${PORT} (class ${CLASS_ID})`);
   console.log(`Database at ${DB_PATH}`);
+  if (IS_EPHEMERAL) {
+    console.warn('');
+    console.warn('=======================================================================');
+    console.warn('⚠️  WARNING: DATA IS ON EPHEMERAL STORAGE — IT WILL BE LOST ON REDEPLOY');
+    console.warn('    Set DATA_DIR to a Railway volume mount path (e.g. /data) and');
+    console.warn('    attach a Volume to this service mounted at that path.');
+    console.warn('=======================================================================');
+    console.warn('');
+  }
 });
