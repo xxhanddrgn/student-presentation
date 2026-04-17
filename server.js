@@ -11,11 +11,30 @@ const DB_PATH = path.join(DATA_DIR, 'presentations.db');
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 
-const STUDENTS = [
-  '권재우', '김예빈', '김윤슬', '김윤중', '신승운',
-  '신재윤', '신주환', '오하라', '이초연', '임아현',
-  '정민찬', '정태준', '정하윤', '최예준', '한소율'
-];
+const STUDENTS_BY_CLASS = {
+  '6-1': [
+    '권재우', '김예빈', '김윤슬', '김윤중', '신승운',
+    '신재윤', '신주환', '오하라', '이초연', '임아현',
+    '정민찬', '정태준', '정하윤', '최예준', '한소율'
+  ],
+  '6-2': [
+    '고민준', '김민지', '김예준', '김지안', '박시은',
+    '설초은', '양지유', '유하진', '이승호', '이준영',
+    '이충환', '임준희', '정태규', '한설아', '한지오'
+  ],
+  '6-3': [
+    '김도영', '김동안', '김성진', '김소은', '김태윤',
+    '박하민', '변서준', '오민지', '우진원', '이다민',
+    '전태희', '정은', '조민준', '조이수', '황태상'
+  ]
+};
+
+const CLASS_ID = process.env.CLASS_ID || '6-1';
+const STUDENTS = STUDENTS_BY_CLASS[CLASS_ID];
+if (!STUDENTS) {
+  console.error(`Unknown CLASS_ID="${CLASS_ID}". Valid values: ${Object.keys(STUDENTS_BY_CLASS).join(', ')}`);
+  process.exit(1);
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS presentations (
@@ -36,6 +55,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/students', (_req, res) => {
   res.json({ students: STUDENTS });
+});
+
+app.get('/api/class', (_req, res) => {
+  res.json({ classId: CLASS_ID });
 });
 
 app.get('/api/week', (req, res) => {
@@ -119,6 +142,6 @@ app.get('/api/summary', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Student presentation tracker listening on :${PORT}`);
+  console.log(`Student presentation tracker listening on :${PORT} (class ${CLASS_ID})`);
   console.log(`Database at ${DB_PATH}`);
 });

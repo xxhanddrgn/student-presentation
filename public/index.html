@@ -608,7 +608,7 @@
 </head>
 <body>
   <header>
-    <h1>🌟 우리 반 발표 현황 🌟</h1>
+    <h1 id="appTitle">🌟 우리 반 발표 현황 🌟</h1>
     <p>발표하면 별이 하나씩 쌓여요!</p>
   </header>
 
@@ -783,6 +783,17 @@
       const res = await fetch('/api/students');
       const data = await res.json();
       STUDENTS = data.students;
+    }
+
+    async function loadClass() {
+      try {
+        const res = await fetch('/api/class');
+        const data = await res.json();
+        if (data.classId) {
+          document.getElementById('appTitle').textContent = `🌟 ${data.classId}반 발표 현황 🌟`;
+          document.title = `${data.classId}반 발표 현황`;
+        }
+      } catch (_) {}
     }
 
     async function loadWeek() {
@@ -1013,7 +1024,7 @@
       currentWeek = iso.week;
       summaryYear = iso.year;
 
-      await loadStudents();
+      await Promise.all([loadStudents(), loadClass()]);
       await loadWeek();
 
       document.getElementById('prevWeek').addEventListener('click', () => stepWeek(-1));
