@@ -957,15 +957,15 @@
         return;
       }
 
-      // dense ranking (tied students share a rank)
+      // dense ranking: tied students share a rank, next distinct count is the next rank (1,2,2,2,3)
       let lastCount = null;
-      let lastRank = 0;
-      sorted.forEach((e, i) => {
+      let denseRank = 0;
+      sorted.forEach((e) => {
         if (e.count !== lastCount) {
-          lastRank = i + 1;
+          denseRank++;
           lastCount = e.count;
         }
-        e.rank = e.count > 0 ? lastRank : null;
+        e.rank = e.count > 0 ? denseRank : null;
       });
 
       const first = sorted.filter(e => e.rank === 1);
