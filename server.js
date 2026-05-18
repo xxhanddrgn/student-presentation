@@ -54,10 +54,16 @@ db.exec(`
     UNIQUE(student, year, week)
   );
   CREATE INDEX IF NOT EXISTS idx_year_week ON presentations(year, week);
+  CREATE TABLE IF NOT EXISTS avatars (
+    student TEXT PRIMARY KEY,
+    mime TEXT NOT NULL,
+    data BLOB NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/students', (_req, res) => {
@@ -66,6 +72,65 @@ app.get('/api/students', (_req, res) => {
 
 app.get('/api/class', (_req, res) => {
   res.json({ classId: CLASS_ID });
+});
+
+app.get('/api/avatars', (_req, res) => {
+  const rows = db.prepare('SELECT student, updated_at FROM avatars').all();
+  const map = {};
+  for (const r of rows) map[r.student] = r.updated_at;
+  res.json({ avatars: map });
+});
+
+app.get('/api/avatar', (req, res) => {
+  const student = req.query.student;
+  if (!STUDENTS.includes(student)) return res.status(404).end();
+  const row = db.prepare('SELECT mime, data FROM avatars WHERE student = ?').get(student);
+  if (!row) return res.status(404).end();
+  res.set('Content-Type', row.mime);
+  res.set('Cache-Control', 'public, max-age=300');
+  res.send(row.data);
+});
+
+app.post('/api/avatar', (req, res) => {
+  const { student, dataUrl } = req.body || {};
+  if (!STUDENTS.includes(student)) {
+    return res.status(400).json({ error: 'unknown student' });
+  }
+  if (typeof dataUrl !== 'string') {
+    return res.status(400).json({ error: 'dataUrl required' });
+  }
+  const m = dataUrl.match(/^data:(image\/[a-zA-Z0-9+.\-]+);base64,(.+)$/);
+  if (!m) {
+    return res.status(400).json({ error: 'invalid dataUrl (must be base64 image)' });
+  }
+  const mime = m[1];
+  let buf;
+  try {
+    buf = Buffer.from(m[2], 'base64');
+  } catch (_) {
+    return res.status(400).json({ error: 'invalid base64' });
+  }
+  if (buf.length === 0 || buf.length > 1024 * 1024) {
+    return res.status(400).json({ error: 'image must be 1 byte to 1MB' });
+  }
+  db.prepare(`
+    INSERT INTO avatars (student, mime, data, updated_at)
+    VALUES (?, ?, ?, datetime('now'))
+    ON CONFLICT(student) DO UPDATE SET
+      mime = excluded.mime,
+      data = excluded.data,
+      updated_at = datetime('now')
+  `).run(student, mime, buf);
+  res.json({ ok: true, updatedAt: Date.now() });
+});
+
+app.delete('/api/avatar', (req, res) => {
+  const student = req.query.student;
+  if (!STUDENTS.includes(student)) {
+    return res.status(400).json({ error: 'unknown student' });
+  }
+  db.prepare('DELETE FROM avatars WHERE student = ?').run(student);
+  res.json({ ok: true });
 });
 
 app.get('/api/week', (req, res) => {
