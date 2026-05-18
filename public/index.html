@@ -226,22 +226,6 @@
       object-fit: cover;
       display: block;
     }
-    .avatar .cam {
-      position: absolute;
-      right: -2px;
-      bottom: -2px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: white;
-      color: var(--accent, #6366f1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      pointer-events: none;
-    }
     .avatar-remove {
       position: absolute;
       top: 6px;
@@ -930,8 +914,8 @@
       const initials = name.slice(-2);
       const url = avatarUrl(name);
       avatarEl.innerHTML = url
-        ? `<img src="${url}" alt="${name}"><span class="cam">📷</span>`
-        : `${initials}<span class="cam">📷</span>`;
+        ? `<img src="${url}" alt="${name}">`
+        : initials;
       let removeBtn = card.querySelector('.avatar-remove');
       if (url) {
         card.classList.add('has-photo');
@@ -984,8 +968,8 @@
         const url = avatarUrl(name);
         const initials = name.slice(-2);
         const avatarInner = url
-          ? `<img src="${url}" alt="${name}"><span class="cam">📷</span>`
-          : `${initials}<span class="cam">📷</span>`;
+          ? `<img src="${url}" alt="${name}">`
+          : initials;
         card.innerHTML = `
           <button class="avatar" type="button" title="사진 업로드/변경">${avatarInner}</button>
           <input type="file" accept="image/*" class="avatar-input" hidden>
